@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+  agent { label 'docker' }
 
   // tiempo maximo que puede durar el job, si sobrepasa este tiempo falla
   options {
