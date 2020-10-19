@@ -1,10 +1,12 @@
 pipeline {
   agent any
 
+  // tiempo maximo que puede durar el job, si sobrepasa este tiempo falla
   options {
     timeout(time: 2, unit: 'MINUTES')
   }
 
+  // variable donde pongo el nombre de la imagen en una variable
   environment {
     ARTIFACT_ID = "elkin5/test-webapp:${env.BUILD_NUMBER}"
   }
@@ -22,26 +24,6 @@ pipeline {
     stage('Run tests') {
       steps {
         sh "docker run ${dockerImage.id} npm test"
-      }
-    }
-    stage('Publish') {
-      when {
-        branch 'master'
-      }
-      steps {
-        script {
-          docker.withRegistry("", "DockerHubCredentials") {
-            dockerImage.push()
-          }
-        }
-      }
-    }
-    stage('Schedule Staging Deployment') {
-      when {
-        branch 'master'
-      }
-      steps {
-        build job: 'deploy-webapp-staging', parameters: [string(name: 'ARTIFACT_ID', value: "${env.ARTIFACT_ID}")], wait: false
       }
     }
   }
